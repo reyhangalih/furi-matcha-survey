@@ -393,6 +393,16 @@
       <!-- Step 2: Q1 -->
       <section class="screen" data-step="2">
         <div class="q-block">
+          <h2>What matcha did you buy today at furi.?</h2>
+          <div class="options" data-name="drink_type">
+            <label class="option"><input type="radio" name="drink_type" value="Signature Cold Whisked Latte"><span class="option-box"><span class="option-check"></span><span class="option-text">Signature Cold Whisked Latte</span></span></label>
+            <label class="option"><input type="radio" name="drink_type" value="Hot Whisked Latte (Classic Matcha Latte)"><span class="option-box"><span class="option-check"></span><span class="option-text">Hot Whisked Latte (Classic Matcha Latte)</span></span></label>
+            <label class="option"><input type="radio" name="drink_type" value="Hojicha Latte"><span class="option-box"><span class="option-check"></span><span class="option-text">Hojicha Latte</span></span></label>
+            <label class="option"><input type="radio" name="drink_type" value="Ubi Halaya Matcha Latte"><span class="option-box"><span class="option-check"></span><span class="option-text">Ubi Halaya Matcha Latte</span></span></label>
+            <label class="option"><input type="radio" name="drink_type" value="Ubi Mochi Matcha"><span class="option-box"><span class="option-check"></span><span class="option-text">Ubi Mochi Matcha</span></span></label>
+          </div>
+        </div>
+        <div class="q-block">
           <h2>1. How would you rate your overall experience with this matcha?</h2>
           <div class="rating">
             <div class="rating-scale" data-name="q1_rating">
@@ -692,6 +702,7 @@
         return true;
       }
       case 2: {
+        if (!getRadioValue('drink_type')) return fail('Please select what matcha you bought today.');
         if (!getRadioValue('q1_rating')) return fail('Please rate your overall experience.');
         var f1 = getCheckedValues('q1_factors');
         if (f1.length === 0) return fail('Please select at least one factor.');
@@ -733,6 +744,7 @@
       freq: getRadioValue('freq'),
       location: getRadioValue('location'),
       location_other: val('location_other'),
+      drink_type: getRadioValue('drink_type'),
       q1_rating: getRadioValue('q1_rating'),
       q1_factors: getCheckedValues('q1_factors').join(', '),
       q1_factors_other: val('q1_factors_other'),
