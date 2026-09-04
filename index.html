@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>furi. — Quick Matcha Feedback</title>
+<meta name="description" content="Share your honest thoughts about furi. matcha. Takes less than 2 minutes, no sign-in needed.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%232B4A31'/%3E%3Ctext x='50' y='69' font-size='58' font-family='Arial,sans-serif' font-weight='700' fill='%23F3EEDC' text-anchor='middle'%3Ef%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EEDC;
+    --surface:#FBF8EE;
+    --green:#2B4A31;
+    --green-dark:#1D3521;
+    --green-soft:#E7E0C8;
+    --ink:#22331F;
+    --ink-soft:#5B6B54;
+    --danger:#B3402A;
+    --radius:16px;
+    --shadow:0 2px 10px rgba(34,51,31,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .app{
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:0 20px;
+  }
+  .topbar{
+    padding:22px 0 10px;
+    position:sticky;
+    top:0;
+    background:var(--cream);
+    z-index:10;
+  }
+  .brand{
+    font-weight:800;
+    font-size:22px;
+    color:var(--green);
+    letter-spacing:-0.02em;
+  }
+  .brand .dot{color:var(--green);}
+  .progress{margin-top:14px;}
+  .progress-track{
+    width:100%;
+    height:6px;
+    background:var(--green-soft);
+    border-radius:99px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--green);
+    border-radius:99px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    display:block;
+    margin-top:6px;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  .stage{
+    flex:1;
+    display:flex;
+    padding:20px 0 40px;
+  }
+  form{width:100%;}
+  .hp{
+    position:absolute;
+    left:-9999px;
+    width:1px;
+    height:1px;
+    opacity:0;
+  }
+  .screen{
+    display:none;
+    animation:fadeIn .4s ease;
+  }
+  .screen.active{display:block;}
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .intro{
+    text-align:center;
+    padding-top:10px;
+  }
+  .logo-mark{
+    width:88px;
+    height:88px;
+    margin:0 auto 24px;
+    border-radius:50%;
+    background:var(--green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .logo-mark svg{width:52px;height:52px;}
+  .intro h1{
+    font-size:24px;
+    font-weight:700;
+    line-height:1.35;
+    margin:0 0 14px;
+  }
+  .intro .lead{
+    font-size:17px;
+    font-weight:600;
+    color:var(--green-dark);
+    margin:0 0 18px;
+  }
+  .intro p{
+    font-size:15px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  .see-you{
+    font-weight:600;
+    color:var(--green-dark) !important;
+  }
+  .q-block{margin-bottom:30px;}
+  .q-block h2{
+    font-size:18px;
+    font-weight:700;
+    line-height:1.4;
+    margin:0 0 14px;
+  }
+  .q-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:-8px 0 14px;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .option{
+    display:block;
+    cursor:pointer;
+  }
+  .option input{
+    position:absolute;
+    opacity:0;
+    width:1px;height:1px;
+  }
+  .option-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--surface);
+    border:1.5px solid var(--green-soft);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:15px;
+    font-weight:500;
+    transition:all .15s ease;
+    min-height:24px;
+  }
+  .option input:checked + .option-box{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .option input:focus-visible + .option-box{
+    outline:2px solid var(--green-dark);
+    outline-offset:2px;
+  }
+  .option-check{
+    flex-shrink:0;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    border:1.5px solid var(--ink-soft);
+    background:#fff;
+    position:relative;
+  }
+  .option input[type=checkbox] + .option-box .option-check{border-radius:6px;}
+  .option input:checked + .option-box .option-check{
+    background:#fff;
+    border-color:#fff;
+  }
+  .option input:checked + .option-box .option-check::after{
+    content:"";
+    position:absolute;
+    left:50%;top:46%;
+    width:5px;height:9px;
+    border:solid var(--green);
+    border-width:0 2px 2px 0;
+    transform:translate(-50%,-50%) rotate(45deg);
+  }
+  .option-text{flex:1;}
+  .option input:disabled + .option-box{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .other-input{
+    margin-top:8px;
+    width:100%;
+    font-family:inherit;
+    font-size:16px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1.5px solid var(--green-soft);
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .other-input:disabled{opacity:.4;}
+  .other-input:focus{outline:2px solid var(--green);}
+  .rating{margin-bottom:6px;}
+  .rating-scale{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .rate-opt{
+    flex:1;
+    cursor:pointer;
+    display:block;
+    text-align:center;
+  }
+  .rate-opt input{position:absolute;opacity:0;width:1px;height:1px;}
+  .rate-opt span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    aspect-ratio:1/1;
+    width:100%;
+    max-width:52px;
+    margin:0 auto;
+    border-radius:50%;
+    border:1.5px solid var(--green-soft);
+    background:var(--surface);
+    font-weight:600;
+    font-size:16px;
+    transition:all .15s ease;
+  }
+  .rate-opt input:checked + span{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .rating-endpoints{
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .rating-endpoints span:last-child{text-align:right;}
+  .rating-selected{
+    text-align:center;
+    margin-top:10px;
+    font-weight:600;
+    color:var(--green-dark);
+    font-size:14px;
+    min-height:20px;
+  }
+  .text-input{
+    width:100%;
+    font-family:inherit;
+    font-size:16px;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1.5px solid var(--green-soft);
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .text-input:focus{outline:2px solid var(--green);}
+  .error-msg{
+    color:var(--danger);
+    font-size:13px;
+    font-weight:600;
+    margin:14px 0 0;
+    padding:10px 14px;
+    background:rgba(179,64,42,0.08);
+    border-radius:10px;
+  }
+  .nav{
+    display:flex;
+    gap:10px;
+    margin-top:8px;
+  }
+  .btn{
+    font-family:inherit;
+    font-size:16px;
+    font-weight:600;
+    border:none;
+    border-radius:14px;
+    padding:15px 20px;
+    cursor:pointer;
+    transition:transform .1s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{
+    background:var(--green);
+    color:#fff;
+    flex:1;
+  }
+  .btn-primary:disabled{opacity:.6;cursor:default;}
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1.5px solid var(--green-soft);
+  }
+  .btn-block{width:100%;margin-top:8px;}
+  footer.credit{
+    text-align:center;
+    padding:20px 0 30px;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">furi<span class="dot">.</span></div>
+    <div class="progress" id="progress" hidden>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-label" id="progressLabel"></span>
+    </div>
+  </header>
+
+  <main class="stage">
+    <form id="surveyForm" novalidate>
+      <input type="text" name="company" id="company" class="hp" tabindex="-1" autocomplete="off">
+
+      <!-- Step 0: Intro -->
+      <section class="screen active" data-step="0">
+        <div class="intro">
+          <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="#F3EEDC" stroke-width="6"/><g stroke="#F3EEDC" stroke-width="5" stroke-linecap="round"><line x1="30" y1="70" x2="70" y2="30"/><line x1="25" y1="58" x2="58" y2="25"/><line x1="42" y1="75" x2="75" y2="42"/></g></svg>
+          </div>
+          <h1>Thanks for drinking our matcha! 🍵</h1>
+          <p class="lead">Be honest. We can take it. (Probably.) 👀</p>
+          <p>This quick questionnaire will take less than 2 minutes and won't ask for your name, number, email, or anything creepy. Promise. 🤝</p>
+          <p>Just your honest thoughts about our matcha — that's it!</p>
+          <button type="button" class="btn btn-primary btn-block" data-action="next">Let's begin ↓</button>
+        </div>
+      </section>
+
+      <!-- Step 1: Demographics -->
+      <section class="screen" data-step="1">
+        <div class="q-block">
+          <h2>How often do you drink matcha?</h2>
+          <div class="options" data-name="freq">
+            <label class="option"><input type="radio" name="freq" value="First time"><span class="option-box"><span class="option-check"></span><span class="option-text">First time</span></span></label>
+            <label class="option"><input type="radio" name="freq" value="Rarely"><span class="option-box"><span class="option-check"></span><span class="option-text">Rarely</span></span></label>
+            <label class="option"><input type="radio" name="freq" value="1–2 times/month"><span class="option-box"><span class="option-check"></span><span class="option-text">1–2 times/month</span></span></label>
+            <label class="option"><input type="radio" name="freq" value="1–2 times/week"><span class="option-box"><span class="option-check"></span><span class="option-text">1–2 times/week</span></span></label>
+            <label class="option"><input type="radio" name="freq" value="3+ times/week"><span class="option-box"><span class="option-check"></span><span class="option-text">3+ times/week</span></span></label>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>Where do you usually buy matcha?</h2>
+          <div class="options" data-name="location">
+            <label class="option"><input type="radio" name="location" value="Coffee Shop"><span class="option-box"><span class="option-check"></span><span class="option-text">Coffee Shop</span></span></label>
+            <label class="option"><input type="radio" name="location" value="Matcha Specialty Shop"><span class="option-box"><span class="option-check"></span><span class="option-text">Matcha Specialty Shop</span></span></label>
+            <label class="option"><input type="radio" name="location" value="Café"><span class="option-box"><span class="option-check"></span><span class="option-text">Café</span></span></label>
+            <label class="option"><input type="radio" name="location" value="Online / Delivery"><span class="option-box"><span class="option-check"></span><span class="option-text">Online / Delivery</span></span></label>
+            <label class="option"><input type="radio" name="location" value="I usually make it myself"><span class="option-box"><span class="option-check"></span><span class="option-text">I usually make it myself</span></span></label>
+            <label class="option"><input type="radio" name="location" value="Other" data-other-toggle="location_other"><span class="option-box"><span class="option-check"></span><span class="option-text">Other</span></span></label>
+          </div>
+          <input type="text" class="other-input" id="location_other" name="location_other" placeholder="Where else?" disabled>
+        </div>
+        <p class="error-msg" id="err1" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" data-action="next">Next →</button>
+        </div>
+      </section>
+
+      <!-- Step 2: Q1 -->
+      <section class="screen" data-step="2">
+        <div class="q-block">
+          <h2>1. How would you rate your overall experience with this matcha?</h2>
+          <div class="rating">
+            <div class="rating-scale" data-name="q1_rating">
+              <label class="rate-opt"><input type="radio" name="q1_rating" value="1" data-label="Strongly dislike"><span>1</span></label>
+              <label class="rate-opt"><input type="radio" name="q1_rating" value="2" data-label="Dislike"><span>2</span></label>
+              <label class="rate-opt"><input type="radio" name="q1_rating" value="3" data-label="It's okay"><span>3</span></label>
+              <label class="rate-opt"><input type="radio" name="q1_rating" value="4" data-label="Like it"><span>4</span></label>
+              <label class="rate-opt"><input type="radio" name="q1_rating" value="5" data-label="Love it"><span>5</span></label>
+            </div>
+            <div class="rating-endpoints"><span>Strongly dislike</span><span>Love it</span></div>
+            <div class="rating-selected" id="label-q1_rating"></div>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>What influenced your rating the most?</h2>
+          <p class="q-sub">Select all that apply</p>
+          <div class="options" data-name="q1_factors">
+            <label class="option"><input type="checkbox" name="q1_factors" value="Matcha flavor"><span class="option-box"><span class="option-check"></span><span class="option-text">Matcha flavor</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Bitterness"><span class="option-box"><span class="option-check"></span><span class="option-text">Bitterness</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Sweetness"><span class="option-box"><span class="option-check"></span><span class="option-text">Sweetness</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Creaminess"><span class="option-box"><span class="option-check"></span><span class="option-text">Creaminess</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Aroma"><span class="option-box"><span class="option-check"></span><span class="option-text">Aroma</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Aftertaste"><span class="option-box"><span class="option-check"></span><span class="option-text">Aftertaste</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Texture"><span class="option-box"><span class="option-check"></span><span class="option-text">Texture</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Overall balance"><span class="option-box"><span class="option-check"></span><span class="option-text">Overall balance</span></span></label>
+            <label class="option"><input type="checkbox" name="q1_factors" value="Other" data-other-toggle="q1_factors_other"><span class="option-box"><span class="option-check"></span><span class="option-text">Other</span></span></label>
+          </div>
+          <input type="text" class="other-input" id="q1_factors_other" name="q1_factors_other" placeholder="Anything else?" disabled>
+        </div>
+        <p class="error-msg" id="err2" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" data-action="next">Next →</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Q2 -->
+      <section class="screen" data-step="3">
+        <div class="q-block">
+          <h2>2. Compared with other matcha drinks you've tried, how would you describe ours?</h2>
+          <div class="rating">
+            <div class="rating-scale" data-name="q2_rating">
+              <label class="rate-opt"><input type="radio" name="q2_rating" value="1" data-label="Much worse"><span>1</span></label>
+              <label class="rate-opt"><input type="radio" name="q2_rating" value="2" data-label="Slightly worse"><span>2</span></label>
+              <label class="rate-opt"><input type="radio" name="q2_rating" value="3" data-label="About the same"><span>3</span></label>
+              <label class="rate-opt"><input type="radio" name="q2_rating" value="4" data-label="Slightly better"><span>4</span></label>
+              <label class="rate-opt"><input type="radio" name="q2_rating" value="5" data-label="Much better"><span>5</span></label>
+            </div>
+            <div class="rating-endpoints"><span>Much worse</span><span>Much better</span></div>
+            <div class="rating-selected" id="label-q2_rating"></div>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>What makes it different?</h2>
+          <p class="q-sub">Select all that apply</p>
+          <div class="options" data-name="q2_diff">
+            <label class="option"><input type="checkbox" name="q2_diff" value="Stronger matcha flavor"><span class="option-box"><span class="option-check"></span><span class="option-text">Stronger matcha flavor</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="More authentic / natural matcha taste"><span class="option-box"><span class="option-check"></span><span class="option-text">More authentic / natural matcha taste</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Less bitter"><span class="option-box"><span class="option-check"></span><span class="option-text">Less bitter</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="More creamy"><span class="option-box"><span class="option-check"></span><span class="option-text">More creamy</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Better balance"><span class="option-box"><span class="option-check"></span><span class="option-text">Better balance</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Better sweetness"><span class="option-box"><span class="option-check"></span><span class="option-text">Better sweetness</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Better aftertaste"><span class="option-box"><span class="option-check"></span><span class="option-text">Better aftertaste</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Nothing particularly different"><span class="option-box"><span class="option-check"></span><span class="option-text">Nothing particularly different</span></span></label>
+            <label class="option"><input type="checkbox" name="q2_diff" value="Other" data-other-toggle="q2_diff_other"><span class="option-box"><span class="option-check"></span><span class="option-text">Other</span></span></label>
+          </div>
+          <input type="text" class="other-input" id="q2_diff_other" name="q2_diff_other" placeholder="Anything else?" disabled>
+        </div>
+        <p class="error-msg" id="err3" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" data-action="next">Next →</button>
+        </div>
+      </section>
+
+      <!-- Step 4: Q3 -->
+      <section class="screen" data-step="4">
+        <div class="q-block">
+          <h2>3. What would you expect from a matcha drink that you would happily buy regularly?</h2>
+          <p class="q-sub">Select up to 3</p>
+          <div class="options" data-name="q3_expect" data-max="3">
+            <label class="option"><input type="checkbox" name="q3_expect" value="Strong matcha flavor"><span class="option-box"><span class="option-check"></span><span class="option-text">Strong matcha flavor</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Smooth & creamy"><span class="option-box"><span class="option-check"></span><span class="option-text">Smooth & creamy</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Less sweet"><span class="option-box"><span class="option-check"></span><span class="option-text">Less sweet</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Naturally sweet"><span class="option-box"><span class="option-check"></span><span class="option-text">Naturally sweet</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Rich / umami flavor"><span class="option-box"><span class="option-check"></span><span class="option-text">Rich / umami flavor</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Low bitterness"><span class="option-box"><span class="option-check"></span><span class="option-text">Low bitterness</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="High-quality premium matcha"><span class="option-box"><span class="option-check"></span><span class="option-text">High-quality premium matcha</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Interesting flavors / combinations"><span class="option-box"><span class="option-check"></span><span class="option-text">Interesting flavors / combinations</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Affordable price"><span class="option-box"><span class="option-check"></span><span class="option-text">Affordable price</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Instagram-worthy presentation"><span class="option-box"><span class="option-check"></span><span class="option-text">Instagram-worthy presentation</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Consistent quality"><span class="option-box"><span class="option-check"></span><span class="option-text">Consistent quality</span></span></label>
+            <label class="option"><input type="checkbox" name="q3_expect" value="Other" data-other-toggle="q3_expect_other"><span class="option-box"><span class="option-check"></span><span class="option-text">Other</span></span></label>
+          </div>
+          <input type="text" class="other-input" id="q3_expect_other" name="q3_expect_other" placeholder="Anything else?" disabled>
+        </div>
+        <p class="error-msg" id="err4" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" data-action="next">Next →</button>
+        </div>
+      </section>
+
+      <!-- Step 5: Q4 -->
+      <section class="screen" data-step="5">
+        <div class="q-block">
+          <h2>How much do you usually spend on a matcha drink?</h2>
+          <div class="options" data-name="q4_spend">
+            <label class="option"><input type="radio" name="q4_spend" value="Under Rp30K–34K"><span class="option-box"><span class="option-check"></span><span class="option-text">Under Rp30K–34K</span></span></label>
+            <label class="option"><input type="radio" name="q4_spend" value="Rp35K–39K"><span class="option-box"><span class="option-check"></span><span class="option-text">Rp35K–39K</span></span></label>
+            <label class="option"><input type="radio" name="q4_spend" value="Rp40K–49K"><span class="option-box"><span class="option-check"></span><span class="option-text">Rp40K–49K</span></span></label>
+            <label class="option"><input type="radio" name="q4_spend" value="Rp50K–59K"><span class="option-box"><span class="option-check"></span><span class="option-text">Rp50K–59K</span></span></label>
+            <label class="option"><input type="radio" name="q4_spend" value="Rp60K–69K"><span class="option-box"><span class="option-check"></span><span class="option-text">Rp60K–69K</span></span></label>
+            <label class="option"><input type="radio" name="q4_spend" value="Rp70K+"><span class="option-box"><span class="option-check"></span><span class="option-text">Rp70K+</span></span></label>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>After trying ours, how do you feel about our price?</h2>
+          <p class="q-sub">We need a damn honest answer 👀</p>
+          <div class="options" data-name="q4_pricefeel">
+            <label class="option"><input type="radio" name="q4_pricefeel" value="Way too expensive"><span class="option-box"><span class="option-check"></span><span class="option-text">Way too expensive</span></span></label>
+            <label class="option"><input type="radio" name="q4_pricefeel" value="A little too expensive"><span class="option-box"><span class="option-check"></span><span class="option-text">A little too expensive</span></span></label>
+            <label class="option"><input type="radio" name="q4_pricefeel" value="Fair / reasonable"><span class="option-box"><span class="option-check"></span><span class="option-text">Fair / reasonable</span></span></label>
+            <label class="option"><input type="radio" name="q4_pricefeel" value="Good value for money"><span class="option-box"><span class="option-check"></span><span class="option-text">Good value for money</span></span></label>
+            <label class="option"><input type="radio" name="q4_pricefeel" value="Surprisingly affordable"><span class="option-box"><span class="option-check"></span><span class="option-text">Surprisingly affordable</span></span></label>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>Based on the quality and experience you received today, what price would feel appropriate for this drink?</h2>
+          <input type="text" class="text-input" id="q4_appropriate" name="q4_appropriate" placeholder="e.g. Rp45.000" inputmode="numeric">
+        </div>
+        <p class="error-msg" id="err5" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" data-action="next">Next →</button>
+        </div>
+      </section>
+
+      <!-- Step 6: Q5 -->
+      <section class="screen" data-step="6">
+        <div class="q-block">
+          <h2>Imagine furi. had a permanent location near you. Which statement best describes you?</h2>
+          <div class="options" data-name="q5_intent">
+            <label class="option"><input type="radio" name="q5_intent" value="I would definitely buy it regularly"><span class="option-box"><span class="option-check"></span><span class="option-text">I would definitely buy it regularly</span></span></label>
+            <label class="option"><input type="radio" name="q5_intent" value="I would probably buy it occasionally"><span class="option-box"><span class="option-check"></span><span class="option-text">I would probably buy it occasionally</span></span></label>
+            <label class="option"><input type="radio" name="q5_intent" value="I would buy it if I happened to be nearby"><span class="option-box"><span class="option-check"></span><span class="option-text">I would buy it if I happened to be nearby</span></span></label>
+            <label class="option"><input type="radio" name="q5_intent" value="I might recommend it to friends, but wouldn't regularly buy it"><span class="option-box"><span class="option-check"></span><span class="option-text">I might recommend it to friends, but wouldn't regularly buy it</span></span></label>
+            <label class="option"><input type="radio" name="q5_intent" value="I probably wouldn't buy it again"><span class="option-box"><span class="option-check"></span><span class="option-text">I probably wouldn't buy it again</span></span></label>
+          </div>
+        </div>
+        <div class="q-block">
+          <h2>And why?</h2>
+          <p class="q-sub">Select all that apply</p>
+          <div class="options" data-name="q5_reasons">
+            <label class="option"><input type="checkbox" name="q5_reasons" value="I really like the taste"><span class="option-box"><span class="option-check"></span><span class="option-text">I really like the taste</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Good value for money"><span class="option-box"><span class="option-check"></span><span class="option-text">Good value for money</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="I like the brand/concept"><span class="option-box"><span class="option-check"></span><span class="option-text">I like the brand/concept</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Convenient location"><span class="option-box"><span class="option-check"></span><span class="option-text">Convenient location</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Good variety of drinks"><span class="option-box"><span class="option-check"></span><span class="option-text">Good variety of drinks</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="I prefer another matcha brand"><span class="option-box"><span class="option-check"></span><span class="option-text">I prefer another matcha brand</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Too expensive"><span class="option-box"><span class="option-check"></span><span class="option-text">Too expensive</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Taste isn't for me"><span class="option-box"><span class="option-check"></span><span class="option-text">Taste isn't for me</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="I don't drink matcha often"><span class="option-box"><span class="option-check"></span><span class="option-text">I don't drink matcha often</span></span></label>
+            <label class="option"><input type="checkbox" name="q5_reasons" value="Other" data-other-toggle="q5_reasons_other"><span class="option-box"><span class="option-check"></span><span class="option-text">Other</span></span></label>
+          </div>
+          <input type="text" class="other-input" id="q5_reasons_other" name="q5_reasons_other" placeholder="Anything else?" disabled>
+        </div>
+        <p class="error-msg" id="err6" hidden></p>
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-action="back">← Back</button>
+          <button type="button" class="btn btn-primary" id="submitBtn" data-action="submit">Submit ✓</button>
+        </div>
+      </section>
+
+      <!-- Step 7: Closing -->
+      <section class="screen" data-step="7">
+        <div class="intro">
+          <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="#F3EEDC" stroke-width="6"/><g stroke="#F3EEDC" stroke-width="5" stroke-linecap="round"><line x1="30" y1="70" x2="70" y2="30"/><line x1="25" y1="58" x2="58" y2="25"/><line x1="42" y1="75" x2="75" y2="42"/></g></svg>
+          </div>
+          <h1>And just like that… you've helped shape our next cup. 🍵</h1>
+          <p>Thanks for the honest thoughts.<br>Now go enjoy your day — we'll handle the matcha. 🫡</p>
+          <p class="see-you">See you at the next cup. 💚</p>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <footer class="credit">furi. matcha — thank you for your feedback</footer>
+</div>
+
+<script>
+(function(){
+  // ==== CONFIGURATION ====
+  // Paste your Google Apps Script Web App URL here (see SETUP.md)
+  var ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzqvepDdQXNKPZQN5l6x7_PQeXNeQzvzoubRMuAC0RotdO1CiQQ4fTk_mc_C3NtcOl4Qw/exec";
+
+  var form = document.getElementById('surveyForm');
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var QUESTION_STEPS = [1,2,3,4,5,6];
+  var current = 0;
+
+  form.addEventListener('submit', function(e){ e.preventDefault(); });
+
+  function showStep(i){
+    screens.forEach(function(s){ s.classList.remove('active'); });
+    screens[i].classList.add('active');
+    current = i;
+    updateProgress();
+    window.scrollTo(0,0);
+  }
+
+  function updateProgress(){
+    var progressEl = document.getElementById('progress');
+    if (QUESTION_STEPS.indexOf(current) !== -1) {
+      progressEl.hidden = false;
+      var idx = QUESTION_STEPS.indexOf(current) + 1;
+      document.getElementById('progressLabel').textContent = 'Question ' + idx + ' of ' + QUESTION_STEPS.length;
+      document.getElementById('progressFill').style.width = ((idx / QUESTION_STEPS.length) * 100) + '%';
+    } else {
+      progressEl.hidden = true;
+    }
+  }
+
+  function getRadioValue(name){
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : '';
+  }
+  function getCheckedValues(name){
+    return Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]:checked')).map(function(el){ return el.value; });
+  }
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+  function showError(stepIndex, msg){
+    var el = document.getElementById('err' + stepIndex);
+    if (el) {
+      el.textContent = msg;
+      el.hidden = false;
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }
+  function fail(msg){ showError(current, msg); return false; }
+  function clearError(screen){
+    if (!screen) return;
+    var el = screen.querySelector('.error-msg');
+    if (el) el.hidden = true;
+  }
+
+  form.addEventListener('change', function(e){
+    var screen = e.target.closest('.screen');
+    clearError(screen);
+
+    // "Other" toggle handling
+    var container = e.target.closest('.options');
+    if (container) {
+      var otherToggleInput = container.querySelector('[data-other-toggle]');
+      if (otherToggleInput) {
+        var target = document.getElementById(otherToggleInput.dataset.otherToggle);
+        if (otherToggleInput.checked) {
+          target.disabled = false;
+          target.focus();
+        } else {
+          target.disabled = true;
+          target.value = '';
+        }
+      }
+      // Max-selection cap for checkbox groups
+      var max = parseInt(container.dataset.max || '0', 10);
+      if (max > 0) {
+        var checkedBoxes = container.querySelectorAll('input[type=checkbox]:checked');
+        var allBoxes = container.querySelectorAll('input[type=checkbox]');
+        if (checkedBoxes.length >= max) {
+          allBoxes.forEach(function(cb){ if (!cb.checked) cb.disabled = true; });
+        } else {
+          allBoxes.forEach(function(cb){ cb.disabled = false; });
+        }
+      }
+    }
+
+    // Rating live label
+    var ratingRow = e.target.closest('.rating-scale');
+    if (ratingRow) {
+      var out = document.getElementById('label-' + ratingRow.dataset.name);
+      if (out) out.textContent = e.target.dataset.label || '';
+    }
+  });
+
+  function validateStep(i){
+    switch(i){
+      case 1: {
+        if (!getRadioValue('freq')) return fail('Please select how often you drink matcha.');
+        var loc = getRadioValue('location');
+        if (!loc) return fail('Please select where you usually buy matcha.');
+        if (loc === 'Other' && !val('location_other')) return fail('Please tell us where you usually buy matcha.');
+        return true;
+      }
+      case 2: {
+        if (!getRadioValue('q1_rating')) return fail('Please rate your overall experience.');
+        var f1 = getCheckedValues('q1_factors');
+        if (f1.length === 0) return fail('Please select at least one factor.');
+        if (f1.indexOf('Other') !== -1 && !val('q1_factors_other')) return fail('Please tell us what else influenced your rating.');
+        return true;
+      }
+      case 3: {
+        if (!getRadioValue('q2_rating')) return fail('Please select a rating.');
+        var f2 = getCheckedValues('q2_diff');
+        if (f2.length === 0) return fail('Please select at least one option.');
+        if (f2.indexOf('Other') !== -1 && !val('q2_diff_other')) return fail('Please tell us what else was different.');
+        return true;
+      }
+      case 4: {
+        var f3 = getCheckedValues('q3_expect');
+        if (f3.length === 0) return fail('Please select at least one (up to 3).');
+        if (f3.indexOf('Other') !== -1 && !val('q3_expect_other')) return fail('Please tell us what else you would expect.');
+        return true;
+      }
+      case 5: {
+        if (!getRadioValue('q4_spend')) return fail('Please select your usual spend.');
+        if (!getRadioValue('q4_pricefeel')) return fail('Please tell us how you feel about our price.');
+        if (!val('q4_appropriate')) return fail('Please share what price would feel appropriate.');
+        return true;
+      }
+      case 6: {
+        if (!getRadioValue('q5_intent')) return fail('Please select the statement that best describes you.');
+        var f5 = getCheckedValues('q5_reasons');
+        if (f5.length === 0) return fail('Please select at least one reason.');
+        if (f5.indexOf('Other') !== -1 && !val('q5_reasons_other')) return fail('Please tell us more.');
+        return true;
+      }
+      default: return true;
+    }
+  }
+
+  function collectData(){
+    return {
+      freq: getRadioValue('freq'),
+      location: getRadioValue('location'),
+      location_other: val('location_other'),
+      q1_rating: getRadioValue('q1_rating'),
+      q1_factors: getCheckedValues('q1_factors').join(', '),
+      q1_factors_other: val('q1_factors_other'),
+      q2_rating: getRadioValue('q2_rating'),
+      q2_diff: getCheckedValues('q2_diff').join(', '),
+      q2_diff_other: val('q2_diff_other'),
+      q3_expect: getCheckedValues('q3_expect').join(', '),
+      q3_expect_other: val('q3_expect_other'),
+      q4_spend: getRadioValue('q4_spend'),
+      q4_pricefeel: getRadioValue('q4_pricefeel'),
+      q4_appropriate: val('q4_appropriate'),
+      q5_intent: getRadioValue('q5_intent'),
+      q5_reasons: getCheckedValues('q5_reasons').join(', '),
+      q5_reasons_other: val('q5_reasons_other'),
+      submitted_at: new Date().toISOString()
+    };
+  }
+
+  function doSubmit(btn){
+    // Honeypot: if filled, silently treat as bot and skip sending
+    if (val('company')) {
+      showStep(7);
+      return;
+    }
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = 'Sending...';
+
+    var payload = collectData();
+
+    fetch(ENDPOINT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .catch(function(err){ console.error('Submission error', err); })
+    .finally(function(){
+      btn.disabled = false;
+      btn.textContent = original;
+      showStep(7);
+    });
+  }
+
+  form.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    e.preventDefault();
+    var action = btn.dataset.action;
+    if (action === 'next') {
+      if (current === 0) { showStep(1); return; }
+      if (validateStep(current)) showStep(current + 1);
+    } else if (action === 'back') {
+      showStep(current - 1);
+    } else if (action === 'submit') {
+      if (validateStep(current)) doSubmit(btn);
+    }
+  });
+
+  showStep(0);
+})();
+</script>
+</body>
+</html>
