@@ -106,12 +106,15 @@
     height:88px;
     margin:0 auto 24px;
     border-radius:50%;
-    background:var(--green);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    overflow:hidden;
+    box-shadow:var(--shadow);
   }
-  .logo-mark svg{width:52px;height:52px;}
+  .logo-mark img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
   .intro h1{
     font-size:24px;
     font-weight:700;
@@ -345,8 +348,8 @@
       <!-- Step 0: Intro -->
       <section class="screen active" data-step="0">
         <div class="intro">
-          <div class="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="#F3EEDC" stroke-width="6"/><g stroke="#F3EEDC" stroke-width="5" stroke-linecap="round"><line x1="30" y1="70" x2="70" y2="30"/><line x1="25" y1="58" x2="58" y2="25"/><line x1="42" y1="75" x2="75" y2="42"/></g></svg>
+          <div class="logo-mark">
+            <img src="logo-mark.jpg" alt="furi. logo">
           </div>
           <h1>Thanks for drinking our matcha! 🍵</h1>
           <p class="lead">Be honest. We can take it. (Probably.) 👀</p>
@@ -567,8 +570,8 @@
       <!-- Step 7: Closing -->
       <section class="screen" data-step="7">
         <div class="intro">
-          <div class="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="46" stroke="#F3EEDC" stroke-width="6"/><g stroke="#F3EEDC" stroke-width="5" stroke-linecap="round"><line x1="30" y1="70" x2="70" y2="30"/><line x1="25" y1="58" x2="58" y2="25"/><line x1="42" y1="75" x2="75" y2="42"/></g></svg>
+          <div class="logo-mark">
+            <img src="logo-mark.jpg" alt="furi. logo">
           </div>
           <h1>And just like that… you've helped shape our next cup. 🍵</h1>
           <p>Thanks for the honest thoughts.<br>Now go enjoy your day — we'll handle the matcha. 🫡</p>
